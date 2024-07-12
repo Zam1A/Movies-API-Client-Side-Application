@@ -1,0 +1,5 @@
+module.exports.MYSQL_HOST = '127.0.0.1'
+module.exports.MYSQL_PORT = '3306'
+module.exports.MYSQL_USER = 'root'
+module.exports.MYSQL_PSW = 'Cab230!'
+module.exports.MYSQL_DB = 'movies'
