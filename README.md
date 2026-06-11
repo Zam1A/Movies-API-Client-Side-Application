@@ -1,4 +1,4 @@
-# CAB230 Movies API Client Side Application
+# Movies-API-Client-Side-Application
 
 React client for the CAB230 Movies API. The app matches the submitted A2 report: it includes a carousel home page, movie search with AG Grid infinite scrolling, movie details, actor details with a ratings chart, registration, login, token refresh, and logout.
 
