@@ -10,7 +10,6 @@ const Navbar = () => {
   return (
     <header className="site-header">
       <Link className="brand-link" to="/">
-        <span className="brand-mark">M</span>
         <span className="brand-text">Movie Searching</span>
       </Link>
 

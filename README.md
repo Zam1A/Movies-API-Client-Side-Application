@@ -7,6 +7,7 @@ React movie search client powered directly by the OMDb API. It includes a carous
 - Modern header with navigation, auth actions, and global theme toggle
 - Home carousel with navigation to Movies, Register, and Login
 - Movie search by title and year
+- AG Grid filtering and sorting for Title, Year, and Type
 - Infinite scrolling movie table using AG Grid
 - Movie detail pages with poster previews and login-gated full details
 - Full detail view shows every available OMDb detail field used by the app, including plot, ratings, people, awards, box office, language, and IMDb metadata

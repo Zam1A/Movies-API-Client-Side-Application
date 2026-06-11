@@ -17,21 +17,7 @@
   align-items: center;
   color: var(--text-color);
   display: inline-flex;
-  gap: 10px;
   text-decoration: none;
-}
-
-.brand-mark {
-  align-items: center;
-  background: linear-gradient(135deg, var(--accent-color), #7c3aed);
-  border-radius: 12px;
-  color: #ffffff;
-  display: inline-flex;
-  font-weight: 800;
-  height: 38px;
-  justify-content: center;
-  letter-spacing: 0;
-  width: 38px;
 }
 
 .brand-text {

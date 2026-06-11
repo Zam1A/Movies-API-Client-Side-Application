@@ -19,7 +19,12 @@ const Movies = () => {
     rowCount: undefined,
     getRows: async (params) => {
       const page = Math.floor(params.startRow / pageSize) + 1;
-      const result = await searchMovies({ ...filtersRef.current, page });
+      const result = await searchMovies({
+        ...filtersRef.current,
+        filterModel: params.filterModel,
+        page,
+        sortModel: params.sortModel,
+      });
 
       if (result.error) {
         setTimeout(() => setErrorMessage(result.message), 0);
@@ -44,10 +49,19 @@ const Movies = () => {
     }, 0);
   }, [titleFilter, yearFilter]);
 
+  const defaultColDef = useMemo(() => ({
+    filter: true,
+    floatingFilter: true,
+    resizable: true,
+    sortable: true,
+    suppressMenu: false,
+  }), []);
+
   const columns = useMemo(() => [
     {
       headerName: "",
       field: "poster",
+      filter: false,
       width: 88,
       cellRenderer: (params) => (
         params.value ? (
@@ -61,13 +75,24 @@ const Movies = () => {
     {
       headerName: "Title",
       field: "title",
+      filter: "agTextColumnFilter",
       flex: 1,
       cellRenderer: (params) => params.data ? (
         <Link to={`/moviedetails/${params.data.imdbID}`}>{params.value}</Link>
       ) : null,
     },
-    { headerName: "Year", field: "year", width: 120 },
-    { headerName: "Type", field: "classification", width: 140 },
+    {
+      headerName: "Year",
+      field: "year",
+      filter: "agTextColumnFilter",
+      width: 120,
+    },
+    {
+      headerName: "Type",
+      field: "classification",
+      filter: "agTextColumnFilter",
+      width: 140,
+    },
   ], []);
 
   return (
@@ -103,6 +128,7 @@ const Movies = () => {
           <AgGridReact
             cacheBlockSize={pageSize}
             columnDefs={columns}
+            defaultColDef={defaultColDef}
             infiniteInitialRowCount={pageSize}
             maxConcurrentDatasourceRequests={1}
             onGridReady={(params) => {
