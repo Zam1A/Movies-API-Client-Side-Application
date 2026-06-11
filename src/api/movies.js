@@ -25,35 +25,82 @@ const toMovieRow = (movie) => ({
   poster: normalizeValue(movie.Poster),
 });
 
-const toPrincipal = (name) => ({
+const toPerson = (category) => (name) => ({
   id: encodeURIComponent(name),
   name,
-  category: "Actor",
+  category,
 });
 
-const toMovieDetails = (movie) => ({
-  imdbID: movie.imdbID,
-  title: movie.Title,
-  year: movie.Year,
-  runtime: normalizeValue(movie.Runtime),
-  genres: splitList(movie.Genre),
-  country: normalizeValue(movie.Country),
-  plot: normalizeValue(movie.Plot),
-  principals: splitList(movie.Actors).map(toPrincipal),
-  ratings: Array.isArray(movie.Ratings)
+const detailValue = (label, value) => ({
+  label,
+  value: normalizeValue(value),
+});
+
+const toMovieDetails = (movie) => {
+  const actors = splitList(movie.Actors);
+  const directors = splitList(movie.Director);
+  const writers = splitList(movie.Writer);
+  const ratings = Array.isArray(movie.Ratings)
     ? movie.Ratings.map((rating) => ({
       source: rating.Source,
       value: rating.Value,
     }))
-    : [],
-  boxoffice: normalizeValue(movie.BoxOffice),
-  poster: normalizeValue(movie.Poster),
-  imdbRating: parseRating(movie.imdbRating),
-  rottenTomatoesRating: parseRating(
-    movie.Ratings?.find((rating) => rating.Source === "Rotten Tomatoes")?.Value
-  ),
-  metacriticRating: parseRating(movie.Metascore),
-});
+    : [];
+
+  return {
+    actors,
+    awards: normalizeValue(movie.Awards),
+    boxoffice: normalizeValue(movie.BoxOffice),
+    country: normalizeValue(movie.Country),
+    detailRows: [
+      detailValue("Rated", movie.Rated),
+      detailValue("Released", movie.Released),
+      detailValue("Runtime", movie.Runtime),
+      detailValue("Language", movie.Language),
+      detailValue("Country", movie.Country),
+      detailValue("Awards", movie.Awards),
+      detailValue("Box Office", movie.BoxOffice),
+      detailValue("Metascore", movie.Metascore),
+      detailValue("IMDb Rating", movie.imdbRating),
+      detailValue("IMDb Votes", movie.imdbVotes),
+      detailValue("Type", movie.Type),
+      detailValue("DVD", movie.DVD),
+      detailValue("Production", movie.Production),
+      detailValue("Website", movie.Website),
+      detailValue("IMDb ID", movie.imdbID),
+    ].filter((item) => item.value),
+    directors,
+    dvd: normalizeValue(movie.DVD),
+    genres: splitList(movie.Genre),
+    imdbID: movie.imdbID,
+    imdbRating: parseRating(movie.imdbRating),
+    imdbVotes: normalizeValue(movie.imdbVotes),
+    language: normalizeValue(movie.Language),
+    metacriticRating: parseRating(movie.Metascore),
+    metascore: normalizeValue(movie.Metascore),
+    people: [
+      ...directors.map(toPerson("Director")),
+      ...writers.map(toPerson("Writer")),
+      ...actors.map(toPerson("Actor")),
+    ],
+    plot: normalizeValue(movie.Plot),
+    poster: normalizeValue(movie.Poster),
+    principals: actors.map(toPerson("Actor")),
+    production: normalizeValue(movie.Production),
+    rated: normalizeValue(movie.Rated),
+    ratings,
+    released: normalizeValue(movie.Released),
+    rottenTomatoesRating: parseRating(
+      ratings.find((rating) => rating.source === "Rotten Tomatoes")?.value
+    ),
+    runtime: normalizeValue(movie.Runtime),
+    title: movie.Title,
+    type: normalizeValue(movie.Type),
+    website: normalizeValue(movie.Website),
+    writers,
+    year: movie.Year,
+  };
+};
 
 export const searchMovies = async ({ title, year, page }) => {
   const data = await requestOmdb({

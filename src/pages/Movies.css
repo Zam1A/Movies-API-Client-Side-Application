@@ -3,12 +3,40 @@
   flex-direction: column;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 28px 20px;
 }
 
 .ag-grid-container {
   height: 710px;
-  overflow-y: auto; 
+  overflow-y: auto;
+}
+
+.movies-search-panel {
+  align-items: end;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 16px 40px var(--shadow-color);
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(180px, 260px) 1fr;
+  margin-bottom: 18px;
+  padding: 22px;
+}
+
+.movies-search-panel h1 {
+  font-size: 30px;
+  line-height: 1.1;
+  margin: 4px 0 0;
+}
+
+.movies-eyebrow {
+  color: var(--muted-text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin: 0;
+  text-transform: uppercase;
 }
 
 .search-container {
@@ -16,13 +44,13 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 10px;
 }
 
 .search-container input {
-  padding: 8px;
+  min-height: 42px;
+  padding: 9px 12px;
   border: 1px solid var(--border-color);
-  border-radius: 3px;
+  border-radius: 6px;
 }
 
 .search-container input[type="text"]:first-child {
@@ -34,14 +62,16 @@
 }
 
 .search-button {
-  padding: 8px 10px;
+  min-height: 42px;
+  padding: 9px 14px;
   background-color: var(--accent-color);
   color: var(--button-text);
   border: none;
-  border-radius: 3px;
+  border-radius: 6px;
   cursor: pointer;
   width: 100px;
   max-width: 25%;
+  font-weight: 800;
 }
 
 .search-button:hover {
@@ -51,7 +81,8 @@
 .ag-theme-alpine {
   box-shadow: none;
   border: 1px solid var(--border-color);
-  border-radius: 3px;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .ag-header-cell-label,
@@ -82,7 +113,31 @@
   text-overflow: ellipsis;
 }
 
+.movie-thumb {
+  border-radius: 4px;
+  height: 58px;
+  object-fit: cover;
+  width: 40px;
+}
+
+.movie-thumb-placeholder {
+  align-items: center;
+  color: var(--muted-text);
+  display: inline-flex;
+  font-size: 11px;
+  height: 58px;
+  line-height: 1.2;
+  white-space: normal;
+  width: 44px;
+}
+
 @media (max-width: 640px) {
+  .movies-search-panel {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
   .search-container {
     align-items: stretch;
     flex-wrap: wrap;

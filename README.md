@@ -4,11 +4,12 @@ React movie search client powered directly by the OMDb API. It includes a carous
 
 ## Features
 
+- Modern header with navigation, auth actions, and global theme toggle
 - Home carousel with navigation to Movies, Register, and Login
 - Movie search by title and year
-- Global light/dark theme toggle beside the movie search controls
 - Infinite scrolling movie table using AG Grid
-- Movie detail pages with poster, plot, cast, ratings, and box office data
+- Movie detail pages with poster previews and login-gated full details
+- Full detail view shows every available OMDb detail field used by the app, including plot, ratings, people, awards, box office, language, and IMDb metadata
 - Local browser-based registration, login, and logout demo
 - No separate backend or database required
 
@@ -68,7 +69,7 @@ The app calls OMDb directly from the browser:
 - Search movies with the `s`, `y`, `type=movie`, and `page` parameters
 - Load movie details with the `i` and `plot=full` parameters
 
-OMDb does not provide actor profile pages or user account endpoints, so the actor route displays a friendly unavailable message and auth is kept as a local demo flow.
+OMDb does not provide actor profile pages or user account endpoints, so the actor route displays a friendly unavailable message and auth is kept as a local demo flow. The movie detail page displays all people data returned by OMDb for the selected title.
 
 ## Project Structure
 

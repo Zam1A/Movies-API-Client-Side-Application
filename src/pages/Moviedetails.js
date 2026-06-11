@@ -1,12 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { AuthContext } from "../AuthContext";
 import "./Moviedetails.css";
 import { getMovieDetails } from "../api/movies";
 
+const groupedPeople = (people) => (
+  people.reduce((groups, person) => {
+    const group = groups[person.category] || [];
+    groups[person.category] = [...group, person];
+    return groups;
+  }, {})
+);
+
 const MovieDetails = ({ match }) => {
   const imdbID = match.params.imdbID;
+  const { user } = useContext(AuthContext);
   const [movieData, setMovieData] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const isLoggedIn = Boolean(user);
 
   useEffect(() => {
     const fetchMovieData = async () => {
@@ -27,18 +39,9 @@ const MovieDetails = ({ match }) => {
     fetchMovieData();
   }, [imdbID]);
 
-  const formatBoxOffice = (amount) => {
-    if (amount === null || amount === undefined) {
-      return "N/A";
-    }
-    if (typeof amount === "string") {
-      return amount;
-    }
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
+  const peopleByRole = useMemo(() => (
+    groupedPeople(movieData?.people || [])
+  ), [movieData]);
 
   if (isLoading) {
     return <div className="center-text">Loading...</div>;
@@ -53,77 +56,122 @@ const MovieDetails = ({ match }) => {
   }
 
   const {
-    title,
-    year,
-    runtime,
+    actors = [],
+    awards,
+    detailRows = [],
     genres = [],
-    country,
     plot,
-    principals = [],
-    ratings = [],
-    boxoffice,
     poster,
+    rated,
+    ratings = [],
+    released,
+    runtime,
+    title,
+    type,
+    year,
   } = movieData;
 
   return (
     <div className="movie-details-container">
-      <div className="title-container">
-        <h1>{title}</h1>
-      </div>
-      <div className="content-container">
-        <div className="details-container">
-          <p>Year: {year || "N/A"}</p>
-          <p>Runtime: {runtime || "N/A"}</p>
-          <p>Genres: {genres.length ? genres.join(", ") : "N/A"}</p>
-          <p>Country: {country || "N/A"}</p>
-          <p>Box Office: {formatBoxOffice(boxoffice)}</p>
-          <p><em>{plot || "No plot available."}</em></p>
-          <h2>Cast</h2>
-          {principals.length > 0 ? (
-            <table className="tableStyle">
-              <thead>
-                <tr>
-                  <th className="center-text">Name</th>
-                  <th className="center-text">Roles</th>
-                </tr>
-              </thead>
-              <tbody>
-                {principals.map((principal) => (
-                  <tr key={`${principal.id}-${principal.category}`}>
-                    <td className="center-text">{principal.name}</td>
-                    <td className="center-text">{principal.category}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <section className="movie-hero">
+        <div className="movie-poster-frame">
+          {poster ? (
+            <img src={poster} alt={title} className="poster" />
           ) : (
-            <p>No cast found.</p>
+            <div className="poster-fallback">No poster</div>
           )}
         </div>
-        <div className="poster-ratings-container">
-          <div className="poster-container">
-            {poster ? (
-              <img src={poster} alt={title} className="poster" />
-            ) : (
-              <p>No poster available.</p>
-            )}
+        <div className="movie-hero-copy">
+          <p className="movie-kicker">{type || "Movie"}</p>
+          <h1>{title}</h1>
+          <div className="movie-chips">
+            {[year, rated, runtime, released, ...genres].filter(Boolean).map((item) => (
+              <span key={item}>{item}</span>
+            ))}
           </div>
-          <div className="ratings-container">
-            <h2>Ratings</h2>
-            {ratings.length > 0 ? (
-              <ul>
-                {ratings.map((rating) => (
-                  <li key={rating.source}>
-                    {rating.source}: {rating.value}
-                  </li>
+          <p className="movie-preview">
+            {isLoggedIn && actors.length
+              ? `Featuring ${actors.join(", ")}.`
+              : "Log in to reveal cast, ratings, box office, awards, and complete movie details."}
+          </p>
+        </div>
+      </section>
+
+      {!isLoggedIn && (
+        <div className="member-callout">
+          <strong>Full details are locked.</strong>
+          <span>Log in to reveal plot, ratings, box office, awards, and all people data returned by OMDb.</span>
+        </div>
+      )}
+
+      <section className="member-details-shell">
+        <div className={`member-details ${isLoggedIn ? "" : "member-details-blurred"}`}>
+          <div className="detail-card detail-card-wide">
+            <p className="detail-label">Full Plot</p>
+            <p className="plot-text">{plot || "No plot available."}</p>
+          </div>
+
+          <div className="detail-grid">
+            {detailRows.map((item) => (
+              <div className="detail-card" key={item.label}>
+                <p className="detail-label">{item.label}</p>
+                <p className="detail-value">{item.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="detail-columns">
+            <div className="detail-card">
+              <p className="detail-label">Ratings</p>
+              {ratings.length ? (
+                <ul className="ratings-list">
+                  {ratings.map((rating) => (
+                    <li key={rating.source}>
+                      <span>{rating.source}</span>
+                      <strong>{rating.value}</strong>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="detail-value">No ratings found.</p>
+              )}
+            </div>
+
+            <div className="detail-card">
+              <p className="detail-label">Awards</p>
+              <p className="detail-value">{awards || "No awards data found."}</p>
+            </div>
+          </div>
+
+          <div className="detail-card detail-card-wide">
+            <p className="detail-label">People</p>
+            {Object.keys(peopleByRole).length ? (
+              <div className="people-groups">
+                {Object.entries(peopleByRole).map(([role, people]) => (
+                  <div className="people-group" key={role}>
+                    <h2>{role}</h2>
+                    <div className="people-list">
+                      {people.map((person) => (
+                        <span key={`${person.category}-${person.name}`}>{person.name}</span>
+                      ))}
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             ) : (
-              <p>No ratings found.</p>
+              <p className="detail-value">No people data found.</p>
             )}
           </div>
         </div>
-      </div>
+
+        {!isLoggedIn && (
+          <div className="member-lock-overlay">
+            <h2>Log in to view full movie details</h2>
+            <Link to="/login">Login</Link>
+          </div>
+        )}
+      </section>
+
       <div className="home-footer">
         <p>Movie data is provided by OMDb.</p>
         <p>(c) 2023 Yan Xiong</p>

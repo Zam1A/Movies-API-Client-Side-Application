@@ -5,7 +5,6 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import "./Movies.css";
 import { Link } from "react-router-dom";
 import { searchMovies } from "../api/movies";
-import ThemeToggle from "../components/ThemeToggle";
 
 const pageSize = 10;
 
@@ -47,6 +46,19 @@ const Movies = () => {
 
   const columns = useMemo(() => [
     {
+      headerName: "",
+      field: "poster",
+      width: 88,
+      cellRenderer: (params) => (
+        params.value ? (
+          <img className="movie-thumb" src={params.value} alt="" />
+        ) : (
+          <span className="movie-thumb-placeholder">No poster</span>
+        )
+      ),
+      sortable: false,
+    },
+    {
       headerName: "Title",
       field: "title",
       flex: 1,
@@ -60,24 +72,29 @@ const Movies = () => {
 
   return (
     <div className="movies-container">
-      <div className="search-container">
-        <input
-          type="text"
-          placeholder="Search by movie title"
-          value={titleFilter}
-          onChange={(event) => setTitleFilter(event.target.value)}
-          onKeyDown={(event) => event.key === "Enter" && handleSearch()}
-        />
-        <input
-          type="text"
-          placeholder="Year"
-          value={yearFilter}
-          onChange={(event) => setYearFilter(event.target.value)}
-          onKeyDown={(event) => event.key === "Enter" && handleSearch()}
-        />
-        <button className="search-button" onClick={handleSearch}>Search</button>
-        <ThemeToggle />
-      </div>
+      <section className="movies-search-panel">
+        <div>
+          <p className="movies-eyebrow">OMDb Search</p>
+          <h1>Find Movies</h1>
+        </div>
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search by movie title"
+            value={titleFilter}
+            onChange={(event) => setTitleFilter(event.target.value)}
+            onKeyDown={(event) => event.key === "Enter" && handleSearch()}
+          />
+          <input
+            type="text"
+            placeholder="Year"
+            value={yearFilter}
+            onChange={(event) => setYearFilter(event.target.value)}
+            onKeyDown={(event) => event.key === "Enter" && handleSearch()}
+          />
+          <button className="search-button" onClick={handleSearch}>Search</button>
+        </div>
+      </section>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
@@ -92,6 +109,7 @@ const Movies = () => {
               gridApi.current = params.api;
               params.api.setDatasource(datasource);
             }}
+            rowHeight={72}
             rowModelType="infinite"
           />
         </div>
