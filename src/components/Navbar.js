@@ -1,15 +1,11 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
-import { logoutUser } from "../api/auth";
 
 const Navbar = () => {
-  const { handleLogout, refresh, user } = useContext(AuthContext);
+  const { handleLogout, user } = useContext(AuthContext);
 
-  const logout = async () => {
-    if (refresh) {
-      await logoutUser(refresh);
-    }
+  const logout = () => {
     handleLogout();
   };
 

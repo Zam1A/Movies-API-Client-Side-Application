@@ -6,7 +6,7 @@ import "./Movies.css";
 import { Link } from "react-router-dom";
 import { searchMovies } from "../api/movies";
 
-const pageSize = 100;
+const pageSize = 10;
 
 const Movies = () => {
   const [titleFilter, setTitleFilter] = useState("");
@@ -23,7 +23,7 @@ const Movies = () => {
 
       if (result.error) {
         setTimeout(() => setErrorMessage(result.message), 0);
-        params.failCallback();
+        params.successCallback([], 0);
         return;
       }
 
@@ -53,11 +53,8 @@ const Movies = () => {
         <Link to={`/moviedetails/${params.data.imdbID}`}>{params.value}</Link>
       ) : null,
     },
-    { headerName: "Year", field: "year", flex: 1 },
-    { headerName: "IMDB Rating", field: "imdbRating", flex: 1 },
-    { headerName: "Rotten Tomatoes Rating", field: "rottenTomatoesRating", flex: 1 },
-    { headerName: "Metacritic Rating", field: "metacriticRating", flex: 1 },
-    { headerName: "Rated", field: "classification", flex: 1 },
+    { headerName: "Year", field: "year", width: 120 },
+    { headerName: "Type", field: "classification", width: 140 },
   ], []);
 
   return (
@@ -99,7 +96,7 @@ const Movies = () => {
       </div>
 
       <div className="home-footer">
-        <p>All data is from IMDB, Metacritic and RottenTomatoes.</p>
+        <p>Movie data is provided by OMDb.</p>
         <p>(c) 2023 Yan Xiong</p>
       </div>
     </div>

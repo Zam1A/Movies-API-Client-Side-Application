@@ -1,27 +1,23 @@
 # Movies-API-Client-Side-Application
 
-React client for a Movies API. It includes a carousel home page, movie search with AG Grid infinite scrolling, movie details, actor details with a ratings chart, registration, login, token refresh, and logout.
+React movie search client powered directly by the OMDb API. It includes a carousel home page, movie search with AG Grid infinite scrolling, movie details, and local demo registration/login flows.
 
 ## Features
 
 - Home carousel with navigation to Movies, Register, and Login
 - Movie search by title and year
 - Infinite scrolling movie table using AG Grid
-- Clickable movie rows leading to movie detail pages
-- Movie detail page with poster, plot, ratings, and clickable cast table
-- Protected actor detail page
-- Automatic bearer token refresh on actor detail requests
-- Actor movie list with pagination
-- IMDb rating histogram using Chart.js
-- Registration, login, and logout flows
+- Movie detail pages with poster, plot, cast, ratings, and box office data
+- Local browser-based registration, login, and logout demo
+- No separate backend or database required
 
 ## Requirements
 
 - Node.js
 - npm
-- A running Movies API server
+- OMDb API key
 
-The frontend reads the API URL from `REACT_APP_API_BASE_URL`. If it is not set, it uses `http://localhost:3000`.
+Create a free API key from [omdbapi.com](https://www.omdbapi.com/), then set it as `REACT_APP_OMDB_API_KEY`.
 
 ## Install
 
@@ -31,22 +27,18 @@ npm install
 
 ## Run Locally
 
-Start the API server first. For the backend project in this workspace, import the SQL files and run it on port `3000`.
-
-Then start this React app on port `3001`.
-
 PowerShell:
 
 ```powershell
 $env:PORT="3001"
-$env:REACT_APP_API_BASE_URL="http://localhost:3000"
+$env:REACT_APP_OMDB_API_KEY="your_omdb_api_key"
 npm start
 ```
 
 macOS/Linux:
 
 ```bash
-PORT=3001 REACT_APP_API_BASE_URL=http://localhost:3000 npm start
+PORT=3001 REACT_APP_OMDB_API_KEY=your_omdb_api_key npm start
 ```
 
 Open:
@@ -61,21 +53,27 @@ http://localhost:3001
 npm run build
 ```
 
-## API Endpoints Used
+## Environment
 
-- `GET /movies/search`
-- `GET /movies/data/:imdbID`
-- `GET /people/:id`
-- `POST /user/register`
-- `POST /user/login`
-- `POST /user/refresh`
-- `POST /user/logout`
+```text
+PORT=3001
+REACT_APP_OMDB_API_KEY=your_omdb_api_key
+```
+
+## API Usage
+
+The app calls OMDb directly from the browser:
+
+- Search movies with the `s`, `y`, `type=movie`, and `page` parameters
+- Load movie details with the `i` and `plot=full` parameters
+
+OMDb does not provide actor profile pages or user account endpoints, so the actor route displays a friendly unavailable message and auth is kept as a local demo flow.
 
 ## Project Structure
 
 ```text
 public/             HTML template
-src/api/            API client helpers
+src/api/            OMDb and local auth helpers
 src/components/     Shared React components
 src/images/         Carousel and auth page images
 src/pages/          Page components and page CSS
@@ -86,7 +84,7 @@ src/index.js        React entry point
 
 ## Troubleshooting
 
-- If the movie list does not load, confirm the API server is running and `REACT_APP_API_BASE_URL` points to it.
-- If movie or actor data returns `Internal Server Error`, check the API database connection and imported SQL data.
-- If the actor page asks you to log in, register or log in first, then click the actor link again.
-- If port `3000` is already used by the API, run the React app on `3001` as shown above.
+- If the movie list does not load, confirm `REACT_APP_OMDB_API_KEY` is set before starting the app.
+- If OMDb says `Invalid API key`, create or verify the key at [omdbapi.com](https://www.omdbapi.com/).
+- If you change the API key while the app is running, stop `npm start` and start it again.
+- If port `3001` is busy, set `PORT` to another value.

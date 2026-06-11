@@ -1,40 +1,59 @@
-import { requestJson } from "./client";
+const USERS_KEY = "movieAppUsers";
+
+const readUsers = () => {
+  try {
+    return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+  } catch (error) {
+    return [];
+  }
+};
+
+const writeUsers = (users) => {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+};
+
+const tokensFor = (email) => ({
+  bearerToken: {
+    token: `local-token-${email}`,
+  },
+});
 
 export const registerUser = async (email, password) => {
-  return requestJson("/user/register", {
-    method: "POST",
-    body: JSON.stringify({
-      email,
+  const normalizedEmail = email.trim().toLowerCase();
+  const users = readUsers();
+
+  if (users.some((user) => user.email === normalizedEmail)) {
+    return {
+      error: true,
+      message: "This email is already registered.",
+    };
+  }
+
+  writeUsers([
+    ...users,
+    {
+      email: normalizedEmail,
       password,
-    }),
-  });
+    },
+  ]);
+
+  return {
+    message: "User registered.",
+  };
 };
 
 export const loginUser = async (email, password) => {
-  return requestJson("/user/login", {
-    method: "POST",
-    body: JSON.stringify({
-      email,
-      password,
-      longExpiry: false
-    }),
-  });
-};
+  const normalizedEmail = email.trim().toLowerCase();
+  const user = readUsers().find((item) => (
+    item.email === normalizedEmail && item.password === password
+  ));
 
-export const refreshToken = async (refreshToken) => {
-  return requestJson("/user/refresh", {
-    method: "POST",
-    body: JSON.stringify({
-      refreshToken,
-    }),
-  });
-};
+  if (!user) {
+    return {
+      error: true,
+      message: "Invalid email or password.",
+    };
+  }
 
-export const logoutUser = async (refreshToken) => {
-  return requestJson("/user/logout", {
-    method: "POST",
-    body: JSON.stringify({
-      refreshToken,
-    }),
-  });
+  return tokensFor(normalizedEmail);
 };

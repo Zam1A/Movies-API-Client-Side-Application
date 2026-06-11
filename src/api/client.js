@@ -1,35 +1,44 @@
-export const API_BASE_URL = (
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:3000"
-).replace(/\/$/, "");
+export const OMDB_API_URL = "https://www.omdbapi.com/";
 
-export const authHeader = (token) => (
-  token ? { Authorization: `Bearer ${token}` } : {}
-);
+export const OMDB_API_KEY = process.env.REACT_APP_OMDB_API_KEY || "";
 
-export const requestJson = async (path, options = {}) => {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-  });
-
-  let data = {};
-  try {
-    data = await response.json();
-  } catch (error) {
-    data = {};
-  }
-
-  if (!response.ok) {
+export const requestOmdb = async (params) => {
+  if (!OMDB_API_KEY) {
     return {
-      ...data,
       error: true,
-      status: response.status,
-      message: data.message || response.statusText || "Request failed",
+      message: "Set REACT_APP_OMDB_API_KEY to load movie data from OMDb.",
     };
   }
 
-  return data;
+  const query = new URLSearchParams({
+    apikey: OMDB_API_KEY,
+    r: "json",
+  });
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      query.set(key, value);
+    }
+  });
+
+  try {
+    const response = await fetch(`${OMDB_API_URL}?${query.toString()}`);
+    const data = await response.json();
+
+    if (!response.ok || data.Response === "False") {
+      return {
+        ...data,
+        error: true,
+        status: response.status,
+        message: data.Error || response.statusText || "Request failed",
+      };
+    }
+
+    return data;
+  } catch (error) {
+    return {
+      error: true,
+      message: "Could not reach OMDb. Please check your internet connection.",
+    };
+  }
 };

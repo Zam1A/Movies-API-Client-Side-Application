@@ -50,7 +50,7 @@ const Home = () => {
         ))}
       </Slider>
       <div className="home-footer">
-        <p>All data is from IMDB, Metacritic and RottenTomatoes.</p>
+        <p>Movie data is provided by OMDb.</p>
         <p>(c) 2023 Yan Xiong</p>
       </div>
     </div>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./Moviedetails.css";
-import { Link } from "react-router-dom";
 import { getMovieDetails } from "../api/movies";
 
 const MovieDetails = ({ match }) => {
@@ -28,9 +27,12 @@ const MovieDetails = ({ match }) => {
     fetchMovieData();
   }, [imdbID]);
 
-  const formatCurrency = (amount) => {
+  const formatBoxOffice = (amount) => {
     if (amount === null || amount === undefined) {
       return "N/A";
+    }
+    if (typeof amount === "string") {
+      return amount;
     }
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -71,10 +73,10 @@ const MovieDetails = ({ match }) => {
       <div className="content-container">
         <div className="details-container">
           <p>Year: {year || "N/A"}</p>
-          <p>Runtime: {runtime ? `${runtime} minutes` : "N/A"}</p>
+          <p>Runtime: {runtime || "N/A"}</p>
           <p>Genres: {genres.length ? genres.join(", ") : "N/A"}</p>
           <p>Country: {country || "N/A"}</p>
-          <p>Box Office: {formatCurrency(boxoffice)}</p>
+          <p>Box Office: {formatBoxOffice(boxoffice)}</p>
           <p><em>{plot || "No plot available."}</em></p>
           <h2>Cast</h2>
           {principals.length > 0 ? (
@@ -83,23 +85,19 @@ const MovieDetails = ({ match }) => {
                 <tr>
                   <th className="center-text">Name</th>
                   <th className="center-text">Roles</th>
-                  <th className="center-text">Characters</th>
                 </tr>
               </thead>
               <tbody>
                 {principals.map((principal) => (
                   <tr key={`${principal.id}-${principal.category}`}>
-                    <td className="center-text">
-                      <Link to={`/individualperson/${principal.id}`}>{principal.name}</Link>
-                    </td>
+                    <td className="center-text">{principal.name}</td>
                     <td className="center-text">{principal.category}</td>
-                    <td className="center-text">{(principal.characters || []).join(", ")}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ) : (
-            <p>No principals found.</p>
+            <p>No cast found.</p>
           )}
         </div>
         <div className="poster-ratings-container">
@@ -127,7 +125,7 @@ const MovieDetails = ({ match }) => {
         </div>
       </div>
       <div className="home-footer">
-        <p>All data is from IMDB, Metacritic and RottenTomatoes.</p>
+        <p>Movie data is provided by OMDb.</p>
         <p>(c) 2023 Yan Xiong</p>
       </div>
     </div>
