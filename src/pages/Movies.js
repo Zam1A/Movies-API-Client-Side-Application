@@ -11,37 +11,40 @@ const pageSize = 100;
 const Movies = () => {
   const [titleFilter, setTitleFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
-  const [activeFilters, setActiveFilters] = useState({ title: "", year: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const gridApi = useRef(null);
+  const filtersRef = useRef({ title: "", year: "" });
 
   const datasource = useMemo(() => ({
     rowCount: undefined,
     getRows: async (params) => {
-      setErrorMessage("");
       const page = Math.floor(params.startRow / pageSize) + 1;
-      const result = await searchMovies({ ...activeFilters, page });
+      const result = await searchMovies({ ...filtersRef.current, page });
 
       if (result.error) {
-        setErrorMessage(result.message);
+        setTimeout(() => setErrorMessage(result.message), 0);
         params.failCallback();
         return;
       }
 
       params.successCallback(result.data || [], result.pagination?.total || 0);
     },
-  }), [activeFilters]);
+  }), []);
 
   const handleSearch = useCallback(() => {
-    setActiveFilters({
+    filtersRef.current = {
       title: titleFilter.trim(),
       year: yearFilter.trim(),
-    });
-    gridApi.current?.purgeInfiniteCache();
-    gridApi.current?.ensureIndexVisible(0);
+    };
+    setErrorMessage("");
+
+    setTimeout(() => {
+      gridApi.current?.purgeInfiniteCache();
+      gridApi.current?.ensureIndexVisible(0);
+    }, 0);
   }, [titleFilter, yearFilter]);
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       headerName: "Title",
       field: "title",
@@ -55,7 +58,7 @@ const Movies = () => {
     { headerName: "Rotten Tomatoes Rating", field: "rottenTomatoesRating", flex: 1 },
     { headerName: "Metacritic Rating", field: "metacriticRating", flex: 1 },
     { headerName: "Rated", field: "classification", flex: 1 },
-  ];
+  ], []);
 
   return (
     <div className="movies-container">
@@ -84,7 +87,6 @@ const Movies = () => {
           <AgGridReact
             cacheBlockSize={pageSize}
             columnDefs={columns}
-            datasource={datasource}
             infiniteInitialRowCount={pageSize}
             maxConcurrentDatasourceRequests={1}
             onGridReady={(params) => {
