@@ -5,6 +5,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import "./Movies.css";
 import { Link } from "react-router-dom";
 import { searchMovies } from "../api/movies";
+import ThemeToggle from "../components/ThemeToggle";
 
 const pageSize = 10;
 
@@ -74,7 +75,8 @@ const Movies = () => {
           onChange={(event) => setYearFilter(event.target.value)}
           onKeyDown={(event) => event.key === "Enter" && handleSearch()}
         />
-        <button onClick={handleSearch}>Search</button>
+        <button className="search-button" onClick={handleSearch}>Search</button>
+        <ThemeToggle />
       </div>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}

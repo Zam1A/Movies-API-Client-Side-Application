@@ -6,6 +6,7 @@ React movie search client powered directly by the OMDb API. It includes a carous
 
 - Home carousel with navigation to Movies, Register, and Login
 - Movie search by title and year
+- Global light/dark theme toggle beside the movie search controls
 - Infinite scrolling movie table using AG Grid
 - Movie detail pages with poster, plot, cast, ratings, and box office data
 - Local browser-based registration, login, and logout demo
@@ -79,7 +80,9 @@ src/images/         Carousel and auth page images
 src/pages/          Page components and page CSS
 src/App.js          Routes and app shell
 src/AuthContext.js  Authentication state
+src/ThemeContext.js Theme state
 src/index.js        React entry point
+src/styles.css      Global theme styles
 ```
 
 ## Troubleshooting

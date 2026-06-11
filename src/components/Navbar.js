@@ -57,8 +57,8 @@ const navStyles = {
   alignItems: "center",
   height: "60px",
   padding: "0 20px",
-  backgroundColor: "#f8f8f8",
-  boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+  backgroundColor: "var(--nav-bg)",
+  boxShadow: "0 2px 5px var(--shadow-color)",
 };
 
 const titleStyles = {
@@ -77,7 +77,7 @@ const ulStyles = {
 
 const linkStyles = {
   textDecoration: "none",
-  color: "#333",
+  color: "var(--text-color)",
   fontWeight: "bold",
   margin: "0 10px",
 };
@@ -85,15 +85,15 @@ const linkStyles = {
 const emailStyles = {
   fontSize: "16px",
   fontWeight: "bold",
-  color: "#666",
+  color: "var(--muted-text)",
   marginRight: "10px",
 };
 
 const buttonStyles = {
-  backgroundColor: "white",
-  border: "1px solid #ccc",
+  backgroundColor: "var(--panel-bg)",
+  border: "1px solid var(--border-color)",
   borderRadius: "4px",
-  color: "#666",
+  color: "var(--text-color)",
   cursor: "pointer",
   fontWeight: "bold",
   padding: "6px 10px",
