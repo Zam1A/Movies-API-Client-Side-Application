@@ -1,0 +1,145 @@
+.home {
+  position: relative;
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+.home-slider {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.home .slick-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.home .slick-slide img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  margin: 0;
+}
+
+.home .slick-slide:nth-child(1) .button-wrapper1 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  text-align: center;
+  z-index: 1;
+}
+
+.home .slick-slide:nth-child(2) .button-wrapper2 {
+  position: absolute;
+  top: 50%;
+  left: 25%;
+  transform: translateY(-50%);
+  width: 50%;
+  text-align: center;
+  z-index: 1;
+}
+
+.home .slick-slide:nth-child(3) .button-wrapper3 {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  text-align: center;
+  z-index: 1;
+}
+
+.home-slider .slick-prev,
+.home-slider .slick-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  width: 50px;
+  height: 50px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  text-align: center;
+  line-height: 50px;
+  cursor: pointer;
+}
+
+.home-slider .slick-prev {
+  left: 20px;
+}
+
+.home-slider .slick-next {
+  right: 20px;
+}
+
+/* Add the following styles */
+.home-slider .slick-dots {
+  position: absolute !important;
+  bottom: 5% !important;
+  width: 100%;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  list-style-type: none !important;
+}
+
+.home-slider .slick-dots li {
+  margin: 0 5px !important;
+}
+
+.home-slider .slick-dots li button:before {
+  font-size: 12px !important;
+}
+
+.custom-dots {
+  position: absolute !important;
+  bottom: 5% !important;
+  width: 100%;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  list-style-type: none !important;
+}
+
+.custom-dots li {
+  margin: 0 5px !important;
+}
+
+.custom-dots li button {
+  border: none !important;
+  background: transparent !important;
+}
+
+.custom-dots li span {
+  display: block;
+  width: 20px;
+  height: 20px;
+  background-color: #ccc;
+  border-radius: 50%;
+  opacity: 0.75;
+}
+
+.custom-dots li.slick-active span {
+  opacity: 1;
+}
+
+.home-footer {
+  text-align: center;
+  padding-top: 20px;
+}
+
+

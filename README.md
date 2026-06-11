@@ -1,115 +1,92 @@
-# Movies API Client Side Application
+# CAB230 Movies API Client Side Application
 
-An Express and MySQL movie information API with Swagger documentation, JWT authentication, movie search, movie detail, people detail, and user profile endpoints.
+React client for the CAB230 Movies API. The app matches the submitted A2 report: it includes a carousel home page, movie search with AG Grid infinite scrolling, movie details, actor details with a ratings chart, registration, login, token refresh, and logout.
 
-## Tech Stack
+## Features
 
-- Node.js
-- Express
-- MySQL / mysql2
-- Knex
-- JSON Web Tokens
-- Swagger UI
-- Pug
+- Home carousel with navigation to Movies, Register, and Login
+- Movie search by title and year
+- Infinite scrolling movie table using AG Grid
+- Clickable movie rows leading to movie detail pages
+- Movie detail page with poster, plot, ratings, and clickable cast table
+- Protected actor detail page
+- Automatic bearer token refresh on actor detail requests
+- Actor movie list with pagination
+- IMDb rating histogram using Chart.js
+- Registration, login, and logout flows
 
-## Prerequisites
+## Requirements
 
 - Node.js
 - npm
-- MySQL Server
+- A running CAB230 Movies API server
 
-## Setup
+The frontend reads the API URL from `REACT_APP_API_BASE_URL`. If it is not set, it uses `http://localhost:3000`.
 
-Install dependencies:
+## Install
 
 ```bash
 npm install
 ```
 
-Create and seed the MySQL database by importing the SQL files in this order:
+## Run Locally
 
-```bash
-mysql -u root -p < sqls/movie.sql
-mysql -u root -p movies < sqls/user.sql
-```
+Start the API server first. For the backend project in this workspace, import the SQL files and run it on port `3000`.
 
-The default database name is `movies`.
+Then start this React app on port `3001`.
 
-## Configuration
-
-The app works with the default MySQL settings below, or you can override them with environment variables.
-
-| Variable | Default |
-| --- | --- |
-| `MYSQL_HOST` | `127.0.0.1` |
-| `MYSQL_PORT` | `3306` |
-| `MYSQL_USER` | `root` |
-| `MYSQL_PASSWORD` / `MYSQL_PSW` | `Cab230!` |
-| `MYSQL_DB` | `movies` |
-
-Example:
-
-```bash
-MYSQL_USER=root MYSQL_PASSWORD=your-password npm start
-```
-
-On Windows PowerShell:
+PowerShell:
 
 ```powershell
-$env:MYSQL_USER="root"
-$env:MYSQL_PASSWORD="your-password"
+$env:PORT="3001"
+$env:REACT_APP_API_BASE_URL="http://localhost:3000"
 npm start
 ```
 
-## Run
-
-Start the server:
+macOS/Linux:
 
 ```bash
-npm start
+PORT=3001 REACT_APP_API_BASE_URL=http://localhost:3000 npm start
 ```
 
-Open the API documentation:
+Open:
 
 ```text
-http://localhost:3000
+http://localhost:3001
 ```
 
-## Main Endpoints
+## Build
+
+```bash
+npm run build
+```
+
+## API Endpoints Used
 
 - `GET /movies/search`
-- `GET /movies/data/:id`
+- `GET /movies/data/:imdbID`
 - `GET /people/:id`
 - `POST /user/register`
 - `POST /user/login`
 - `POST /user/refresh`
 - `POST /user/logout`
-- `GET /user/:email/profile`
-- `PUT /user/:email/profile`
-
-Some people and profile routes require a bearer token. Use `/user/login` to get the token, then send it with:
-
-```text
-Authorization: Bearer <token>
-```
 
 ## Project Structure
 
 ```text
-bin/            Server entry point
-config/         MySQL and JWT configuration
-db/             Knex database queries
-helpers/        Shared response and token helpers
-middlewares/    Authentication middleware
-routes/         Express route handlers
-sqls/           Database seed files
-swagger/        OpenAPI specification
-views/          Pug templates
+public/             HTML template
+src/api/            API client helpers
+src/components/     Shared React components
+src/images/         Carousel and auth page images
+src/pages/          Page components and page CSS
+src/App.js          Routes and app shell
+src/AuthContext.js  Authentication state
+src/index.js        React entry point
 ```
 
 ## Troubleshooting
 
-- The Swagger page can load without MySQL.
-- Data endpoints need MySQL running and the SQL files imported.
-- If a data endpoint returns `Internal Server Error`, check the MySQL host, port, username, password, and database name.
-- If port `3000` is already in use, set `PORT` before starting the app.
+- If the movie list does not load, confirm the API server is running and `REACT_APP_API_BASE_URL` points to it.
+- If movie or actor data returns `Internal Server Error`, check the API database connection and imported SQL data.
+- If the actor page asks you to log in, register or log in first, then click the actor link again.
+- If port `3000` is already used by the API, run the React app on `3001` as shown above.
