@@ -1,9 +1,9 @@
 const express = require('express');
 const { searchMovies, getMovieDetail } = require('../db/movie');
-const { makeError } = require('../helpers');
+const { makeError, asyncHandler } = require('../helpers');
 const router = express.Router();
 
-router.get('/search', async function (req, res) {
+router.get('/search', asyncHandler(async function (req, res) {
   let { title, year, page } = req.query;
   if (!page) {
     page = 1;
@@ -12,15 +12,18 @@ router.get('/search', async function (req, res) {
   } else {
     page = parseInt(page);
   }
+  if (page < 1) {
+    return makeError(res, 400, 'Invalid page format. page must be at least 1.');
+  }
   if (!!year) {
     if (!/^[0-9]{4}$/.test(year)) {
       return makeError(res, 400, 'Invalid year format. Format must be yyyy.');
     }
   }
   res.json(await searchMovies(title, year, page));
-});
+}));
 
-router.get('/data/:id', async function (req, res) {
+router.get('/data/:id', asyncHandler(async function (req, res) {
   if (Object.keys(req.query).length) {
     return makeError(res, 400, 'Query parameters are not permitted.');
   }
@@ -30,6 +33,6 @@ router.get('/data/:id', async function (req, res) {
   } else {
     res.json(data);
   }
-});
+}));
 
 module.exports = router;

@@ -1,10 +1,51 @@
 const express = require('express');
-const { makeError, signToken, decodeToken } = require('../helpers');
+const { makeError, signToken, decodeToken, asyncHandler } = require('../helpers');
 const { findUserByEmail, register, findUserByEmailAndPassword, updateUser } = require('../db/user');
 const { mayLogin, mustLogin } = require('../middlewares');
 const router = express.Router();
+const oneDay = 60 * 60 * 24;
+const oneYear = oneDay * 365;
+const profileFields = ['firstName', 'lastName', 'dob', 'address'];
 
-router.post('/register', async function (req, res, next) {
+const createTokenResponse = function (email, bearerExpiresInSeconds, refreshExpiresInSeconds) {
+  return {
+    bearerToken: {
+      token: signToken(email, bearerExpiresInSeconds),
+      token_type: 'Bearer',
+      expires_in: bearerExpiresInSeconds
+    },
+    refreshToken: {
+      token: signToken(email, refreshExpiresInSeconds),
+      token_type: 'Refresh',
+      expires_in: refreshExpiresInSeconds
+    }
+  };
+};
+
+const validateProfileBody = function (body) {
+  for (let k of profileFields) {
+    if (!body[k]) {
+      return 'Request body incomplete: firstName, lastName, dob and address are required.';
+    }
+    if (typeof body[k] !== 'string') {
+      return 'Request body invalid: firstName, lastName and address must be strings only.';
+    }
+    if (k === 'dob') {
+      const d = new Date(body[k]);
+      if (d.getTime() > Date.now()) {
+        return 'Invalid input: dob must be a date in the past.';
+      }
+      if (!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(body[k]) ||
+        isNaN(d.getTime()) ||
+        d.toISOString().split('T')[0] !== body[k]) {
+        return 'Invalid input: dob must be a real date in format YYYY-MM-DD.';
+      }
+    }
+  }
+  return null;
+};
+
+router.post('/register', asyncHandler(async function (req, res, next) {
   const { email, password } = req.body;
   if (!email || !password) {
     makeError(res, 400, 'Request body incomplete, both email and password are required');
@@ -14,9 +55,9 @@ router.post('/register', async function (req, res, next) {
     await register(email, password);
     makeError(res, 201, 'User created');
   }
-});
+}));
 
-router.post('/login', async function (req, res, next) {
+router.post('/login', asyncHandler(async function (req, res, next) {
   const { email, password, longExpiry, bearerExpiresInSeconds, refreshExpiresInSeconds } = req.body;
   if (!email || !password) {
     return makeError(res, 400, 'Request body incomplete, both email and password are required');
@@ -24,38 +65,18 @@ router.post('/login', async function (req, res, next) {
   const user = await findUserByEmailAndPassword(email, password);
   if (!user) {
     makeError(res, 401, 'Incorrect email or password');
+  } else if (longExpiry) {
+    res.json(createTokenResponse(user.email, oneYear, oneYear));
   } else {
-    if (longExpiry) {
-      res.json({
-        bearerToken: {
-          token: signToken(user.email, 60 * 60 * 24 * 365),
-          token_type: 'Bearer',
-          expires_in: 60 * 60 * 24 * 365
-        },
-        refreshToken: {
-          token: signToken(user.email, 60 * 60 * 24 * 365),
-          token_type: 'Refresh',
-          expires_in: 60 * 60 * 24 * 365
-        }
-      });
-    } else {
-      res.json({
-        bearerToken: {
-          token: signToken(user.email, bearerExpiresInSeconds || 600),
-          token_type: 'Bearer',
-          expires_in: bearerExpiresInSeconds || 600
-        },
-        refreshToken: {
-          token: signToken(user.email, refreshExpiresInSeconds ?? 60 * 60 * 24),
-          token_type: 'Refresh',
-          expires_in: refreshExpiresInSeconds ?? 60 * 60 * 24
-        }
-      });
-    }
+    res.json(createTokenResponse(
+      user.email,
+      bearerExpiresInSeconds || 600,
+      refreshExpiresInSeconds ?? oneDay
+    ));
   }
-});
+}));
 
-router.post('/refresh', async function (req, res) {
+router.post('/refresh', asyncHandler(async function (req, res) {
   if (!req.body.refreshToken) {
     return makeError(res, 400, 'Request body incomplete, refresh token required');
   }
@@ -63,21 +84,10 @@ router.post('/refresh', async function (req, res) {
   if (typeof token === 'string') {
     return makeError(res, 401, token);
   }
-  res.json({
-    bearerToken: {
-      token: signToken(token.email, 600),
-      token_type: 'Bearer',
-      expires_in: 600
-    },
-    refreshToken: {
-      token: signToken(token.email, 60 * 60 * 24),
-      token_type: 'Refresh',
-      expires_in: 60 * 60 * 24
-    }
-  });
-});
+  res.json(createTokenResponse(token.email, 600, oneDay));
+}));
 
-router.post('/logout', async function (req, res) {
+router.post('/logout', asyncHandler(async function (req, res) {
   if (!req.body.refreshToken) {
     return makeError(res, 400, 'Request body incomplete, refresh token required');
   }
@@ -86,9 +96,9 @@ router.post('/logout', async function (req, res) {
     return makeError(res, 401, t);
   }
   makeError(res, 200, 'Token successfully invalidated');
-});
+}));
 
-router.get('/:email/profile', mayLogin, async function (req, res) {
+router.get('/:email/profile', mayLogin, asyncHandler(async function (req, res) {
   const email = req.params.email;
   if (!email) {
     return makeError(res, 400, 'You must supply an email!');
@@ -109,33 +119,16 @@ router.get('/:email/profile', mayLogin, async function (req, res) {
     delete result['address'];
   }
   res.json(result);
-});
+}));
 
-router.put('/:email/profile', mustLogin, async function (req, res) {
+router.put('/:email/profile', mustLogin, asyncHandler(async function (req, res) {
   const email = req.params.email;
   if (!email) {
     return makeError(res, 400, 'You must supply an email!');
   }
-  const params = ['firstName', 'lastName', 'dob', 'address'];
-  for (let k of params) {
-    if (!req.body[k]) {
-      return makeError(res, 400, 'Request body incomplete: firstName, lastName, dob and address are required.');
-    }
-    if (typeof req.body[k] !== 'string') {
-      return makeError(res, 400, 'Request body invalid: firstName, lastName and address must be strings only.');
-    }
-    if (k === 'dob') {
-      const d = new Date(req.body[k]);
-      if (d.getTime() > Date.now()) {
-        return makeError(res, 400, 'Invalid input: dob must be a date in the past.');
-      } else if (!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(req.body[k])) {
-        return makeError(res, 400, 'Invalid input: dob must be a real date in format YYYY-MM-DD.');
-      } else if (isNaN(d.getTime())) {
-        return makeError(res, 400, 'Invalid input: dob must be a real date in format YYYY-MM-DD.');
-      } else if (d.toISOString().split('T')[0] !== req.body[k]) {
-        return makeError(res, 400, 'Invalid input: dob must be a real date in format YYYY-MM-DD.');
-      }
-    }
+  const profileError = validateProfileBody(req.body);
+  if (profileError) {
+    return makeError(res, 400, profileError);
   }
   if (email !== req.email) {
     return makeError(res, 403, 'Forbidden');
@@ -152,6 +145,6 @@ router.put('/:email/profile', mustLogin, async function (req, res) {
   };
   await updateUser(toUpdate);
   res.json(toUpdate);
-});
+}));
 
 module.exports = router;

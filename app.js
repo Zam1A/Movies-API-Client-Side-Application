@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const app = express();
+const apiPrefixes = ['/movies', '/people', '/user'];
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -30,12 +31,23 @@ app.use(function (req, res, next) {
 
 // error handler
 app.use(function (err, req, res, next) {
+  const status = err.status || 500;
+  const wantsJson = apiPrefixes.some(prefix => req.path.startsWith(prefix)) ||
+    req.accepts(['html', 'json']) === 'json';
+
+  if (wantsJson) {
+    return res.status(status).json({
+      error: status >= 400,
+      message: status === 500 ? 'Internal Server Error' : err.message
+    });
+  }
+
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
-  res.status(err.status || 500);
+  res.status(status);
   res.render('error');
 });
 

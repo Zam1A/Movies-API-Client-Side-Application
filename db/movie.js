@@ -1,25 +1,32 @@
 const db = require('./db');
 
-let pagesize = 100;
+const pageSize = 100;
 
-const countMovies = async function (title, year, page) {
-  const query = db('basics');
+const whereTitleLike = function (query, title) {
+  query.andWhere('primaryTitle', 'like', `%${title}%`);
+};
+
+const applyMovieFilters = function (query, title, year) {
   if (title) {
-    query.andWhereILike('primaryTitle', `%${title}%`);
+    whereTitleLike(query, title);
   }
   if (year) {
     query.andWhere({ year: year });
   }
-  query.count().first();
+  return query;
+};
+
+const countMovies = async function (title, year, page) {
+  const query = applyMovieFilters(db('basics'), title, year).count().first();
   const result = await query;
-  const total = result['count(*)'];
-  const last = total > 0 ? Math.floor(total / 100) + 1 : 0
+  const total = Number(result['count(*)'] || 0);
+  const last = total > 0 ? Math.ceil(total / pageSize) : 0;
   return {
     total: total,
-    perPage: pagesize,
+    perPage: pageSize,
     currentPage: page,
-    from: (page - 1) * pagesize,
-    to: page * pagesize,
+    from: (page - 1) * pageSize,
+    to: page * pageSize,
     lastPage: last,
     prevPage: page > 1 ? page - 1 : null,
     nextPage: page < last ? page + 1 : null
@@ -27,17 +34,12 @@ const countMovies = async function (title, year, page) {
 };
 
 const searchMovies = async function (title, year, page) {
-  const query = db('basics').select('*');
-  if (title) {
-    query.andWhereILike('primaryTitle', `%${title}%`);
-  }
-  if (year) {
-    query.andWhere({ year: year });
-  }
-  query.offset((page - 1) * pagesize).limit(pagesize);
+  const query = applyMovieFilters(db('basics').select('*'), title, year)
+    .offset((page - 1) * pageSize)
+    .limit(pageSize);
   const result = await query;
   const pagination = await countMovies(title, year, page);
-  pagination.to = (page - 1) * pagesize + result.length
+  pagination.to = (page - 1) * pageSize + result.length;
   return {
     data: result.map(r => {
       return {

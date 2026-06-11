@@ -7,8 +7,14 @@ const db = require('knex')({
     port: MYSQL_PORT,
     user: MYSQL_USER,
     password: MYSQL_PSW,
-    database: MYSQL_DB
+    database: MYSQL_DB,
+    connectTimeout: Number(process.env.MYSQL_CONNECT_TIMEOUT || 10000)
   },
+  pool: {
+    min: 0,
+    max: Number(process.env.MYSQL_POOL_MAX || 10)
+  },
+  acquireConnectionTimeout: Number(process.env.MYSQL_ACQUIRE_TIMEOUT || 10000)
 });
 
 module.exports = db;
