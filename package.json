@@ -2,7 +2,7 @@
   "name": "movies-api-client-side-application",
   "version": "1.0.0",
   "private": true,
-  "description": "React client for the CAB230 Movies API.",
+  "description": "React client for a Movies API.",
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {

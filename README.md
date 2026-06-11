@@ -1,6 +1,6 @@
 # Movies-API-Client-Side-Application
 
-React client for the CAB230 Movies API. The app matches the submitted A2 report: it includes a carousel home page, movie search with AG Grid infinite scrolling, movie details, actor details with a ratings chart, registration, login, token refresh, and logout.
+React client for a Movies API. It includes a carousel home page, movie search with AG Grid infinite scrolling, movie details, actor details with a ratings chart, registration, login, token refresh, and logout.
 
 ## Features
 
@@ -19,7 +19,7 @@ React client for the CAB230 Movies API. The app matches the submitted A2 report:
 
 - Node.js
 - npm
-- A running CAB230 Movies API server
+- A running Movies API server
 
 The frontend reads the API URL from `REACT_APP_API_BASE_URL`. If it is not set, it uses `http://localhost:3000`.
 
