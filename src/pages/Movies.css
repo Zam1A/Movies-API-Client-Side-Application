@@ -46,7 +46,8 @@
   gap: 10px;
 }
 
-.search-container input {
+.search-container input,
+.search-container select {
   min-height: 42px;
   padding: 9px 12px;
   border: 1px solid var(--border-color);
@@ -57,8 +58,14 @@
   flex: 3;
 }
 
-.search-container input[type="text"]:last-child {
+.search-container .year-filter {
   flex: 1;
+}
+
+.search-container select {
+  background: var(--input-bg);
+  color: var(--text-color);
+  flex: 0 0 140px;
 }
 
 .search-button {
@@ -144,7 +151,8 @@
   }
 
   .search-container input[type="text"]:first-child,
-  .search-container input[type="text"]:last-child {
+  .search-container .year-filter,
+  .search-container select {
     flex: 1 1 100%;
   }
 

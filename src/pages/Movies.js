@@ -11,9 +11,10 @@ const pageSize = 10;
 const Movies = () => {
   const [titleFilter, setTitleFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const gridApi = useRef(null);
-  const filtersRef = useRef({ title: "", year: "" });
+  const filtersRef = useRef({ title: "", type: "", year: "" });
 
   const datasource = useMemo(() => ({
     rowCount: undefined,
@@ -21,7 +22,6 @@ const Movies = () => {
       const page = Math.floor(params.startRow / pageSize) + 1;
       const result = await searchMovies({
         ...filtersRef.current,
-        filterModel: params.filterModel,
         page,
         sortModel: params.sortModel,
       });
@@ -39,6 +39,7 @@ const Movies = () => {
   const handleSearch = useCallback(() => {
     filtersRef.current = {
       title: titleFilter.trim(),
+      type: typeFilter,
       year: yearFilter.trim(),
     };
     setErrorMessage("");
@@ -47,21 +48,18 @@ const Movies = () => {
       gridApi.current?.purgeInfiniteCache();
       gridApi.current?.ensureIndexVisible(0);
     }, 0);
-  }, [titleFilter, yearFilter]);
+  }, [titleFilter, typeFilter, yearFilter]);
 
   const defaultColDef = useMemo(() => ({
-    filter: true,
-    floatingFilter: true,
     resizable: true,
     sortable: true,
-    suppressMenu: false,
+    suppressMenu: true,
   }), []);
 
   const columns = useMemo(() => [
     {
       headerName: "",
       field: "poster",
-      filter: false,
       width: 88,
       cellRenderer: (params) => (
         params.value ? (
@@ -75,7 +73,6 @@ const Movies = () => {
     {
       headerName: "Title",
       field: "title",
-      filter: "agTextColumnFilter",
       flex: 1,
       cellRenderer: (params) => params.data ? (
         <Link to={`/moviedetails/${params.data.imdbID}`}>{params.value}</Link>
@@ -84,13 +81,11 @@ const Movies = () => {
     {
       headerName: "Year",
       field: "year",
-      filter: "agTextColumnFilter",
       width: 120,
     },
     {
       headerName: "Type",
       field: "classification",
-      filter: "agTextColumnFilter",
       width: 140,
     },
   ], []);
@@ -111,12 +106,23 @@ const Movies = () => {
             onKeyDown={(event) => event.key === "Enter" && handleSearch()}
           />
           <input
+            className="year-filter"
             type="text"
             placeholder="Year"
             value={yearFilter}
             onChange={(event) => setYearFilter(event.target.value)}
             onKeyDown={(event) => event.key === "Enter" && handleSearch()}
           />
+          <select
+            aria-label="Filter by type"
+            value={typeFilter}
+            onChange={(event) => setTypeFilter(event.target.value)}
+          >
+            <option value="">All types</option>
+            <option value="movie">Movies</option>
+            <option value="series">Series</option>
+            <option value="episode">Episodes</option>
+          </select>
           <button className="search-button" onClick={handleSearch}>Search</button>
         </div>
       </section>
